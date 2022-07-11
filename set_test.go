@@ -42,7 +42,7 @@ func (s *set) Adding_increases_len_by_unique_added_elements(t *T) {
 
 func (s *set) Has_added_elements(t *T) {
 	add := []int{2, 2, 3}
-	ii := (&Set{}).Add(1).Add(add[0], add[1:]...)
+	ii := (&Set{}).Add(1).Add(add...)
 	for _, a := range append([]int{1}, add...) {
 		t.True(ii.Has(a))
 	}

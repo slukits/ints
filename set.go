@@ -26,12 +26,7 @@ func (s *Set) IsEmpty() bool { return s.cardinality == 0 }
 
 // FromSlice constructs a int-set from a given slice.
 func FromSlice(elms []int) *Set {
-	if len(elms) == 0 {
-		return &Set{}
-	}
-	s := &Set{}
-	s.Add(elms[0], elms[1:]...)
-	return s
+	return (&Set{}).Add(elms...)
 }
 
 // ToSlice converts the (ordered) integers of receiving set to a slice.
@@ -110,11 +105,7 @@ func (s *Set) add(elm int) {
 }
 
 // Add adds given integers to receiving set.
-func (s *Set) Add(elm int, elms ...int) *Set {
-	s.add(elm)
-	if len(elms) == 0 {
-		return s
-	}
+func (s *Set) Add(elms ...int) *Set {
 	for _, elm := range elms {
 		s.add(elm)
 	}
