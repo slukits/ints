@@ -79,8 +79,10 @@ the go documentation server.
 
 Format flags may be changed at any time
 
-dec.SetFmt(DOT_SEPARATOR)
-fmt.Print(d.Str(dec)) // prints "2.50"
+```go
+    dec.SetFmt(DOT_SEPARATOR)
+    fmt.Print(d.Str(dec)) // prints "2.50"
+```
 
 While Str truncates superfluous fractionals Rnd returns a "round to
 even" string representation of a Decimal value.
