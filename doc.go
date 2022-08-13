@@ -47,8 +47,8 @@
 // [ints.Decimal].
 //
 // A Context has two set of flags the arithmetic flags and format flags.
-// The former control the [ints.Decimal] conversion and their arithmetics.
-// The later control the string representation of a
+// The former control the [ints.Decimal] conversion and their
+// arithmetics.  The later control the string representation of a
 // [ints.Decimal] value.  Once a Context instance is created its
 // arithmetic flags are immutable.  The [ints.Dec] arithmetic flags
 // default to [DOT_SEPARATOR] | [SIX_FRACTIONALS].  I.e. the string to
@@ -66,7 +66,7 @@
 // NOTE while I try to write idiomatic go code I value a convenient to
 // use (practical) API higher than the "make the zero type usable"
 // idiom.  I couldn't find a way to make the zero [Context] usable while
-// providing the API it has.  Hence you should never instantiate the
+// providing the API it has.  Hence you should never instantiate a
 // [Context], [Convert], [Decimal] or [Floats] type directly.  It is all
 // done for you by a single ints.Dec.New call.  The mentioned types are
 // defined as public anyway to provide their methods' documentations in
