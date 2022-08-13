@@ -9,6 +9,7 @@ import (
 	"math"
 	"math/big"
 	"strconv"
+	"sync"
 )
 
 // ErrOverflow is returned by any arithmetic operation whose result (or
@@ -97,7 +98,7 @@ func initialize(c *Context) {
 func (c *Context) fractionalProperties(n int) (
 	ii, ff int8, max Decimal, imx, fmx uint64,
 ) {
-	if ii, ok := inits[n]; ok {
+	if ii, ok := initsFor(n); ok {
 		return ii.ii, ii.ff, ii.max, ii.imx, ii.fmx
 	}
 	vv := nInit{ff: int8(n)}
@@ -110,7 +111,7 @@ func (c *Context) fractionalProperties(n int) (
 	vv.imx = (maxDifFrc / expFrc) - 1
 	vv.fmx = uint64(vv.max) % expFrc
 	vv.ii = int8(len(strconv.Itoa(int(vv.imx))))
-	inits[n] = vv
+	addInitsFor(n, vv)
 	return vv.ii, vv.ff, vv.max, vv.imx, vv.fmx
 }
 
@@ -127,6 +128,21 @@ type nInit struct {
 // fractionals; i.e. they are calculated only once since they are
 // constant.
 var inits = map[int]nInit{}
+
+func initsFor(n int) (nInit, bool) {
+	mutex.Lock()
+	defer mutex.Unlock()
+	ii, ok := inits[n]
+	return ii, ok
+}
+
+func addInitsFor(n int, ii nInit) {
+	mutex.Lock()
+	defer mutex.Unlock()
+	inits[n] = ii
+}
+
+var mutex = sync.Mutex{}
 
 // SetFmt sets given context's format flags.  Is more than one fractional
 // or separator flag given only one of them is used and it is undefined
