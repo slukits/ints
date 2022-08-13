@@ -1,28 +1,29 @@
 name: Go
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
 
 jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
+            - name: Set up Go
+              uses: actions/setup-go@v3
+              with:
+                  go-version: 1.18
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
+            - name: Build
+              run: go build -v ./...
 
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
-
-    - name: Coverage
-      run: go test -race -coverprofile=coverage.txt -covermode=atomic
+            - name: Test
+              env:
+                  GITHUB_TOKEN: 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
+                  GOPRIVATE: github.com/slukits/
+              run: |
+                  git config --global url."https://$GITHUB_TOKEN:x-oauth-basic@github.com/".insteadOf "https://github.com/"
+                  go test -race -cover ./...
