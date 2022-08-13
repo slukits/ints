@@ -13,11 +13,13 @@ import (
 type set struct{ Suite }
 
 func (s *set) Initial_length_is_zero(t *T) {
-	t.Eq(0, (&Set{}).Len())
+	var fx Set
+	t.Eq(0, fx.Len())
 }
 
 func (s *set) Is_initially_empty(t *T) {
-	t.True((&Set{}).IsEmpty())
+	var fx Set
+	t.True(fx.IsEmpty())
 }
 
 func (s *set) From_empty_slice_is_empty(t *T) {

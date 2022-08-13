@@ -12,7 +12,7 @@ import (
 const wordLength = 32 << (^uint(0) >> 63)
 
 // Set provides a fast implementation for integer sets of small
-// non-negative integers.
+// non-negative integers.  The zero value is ready to use.
 type Set struct {
 	words       []uint
 	cardinality int
