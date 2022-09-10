@@ -20,9 +20,6 @@ var ErrOverflow = errors.New("ints: dec: overflow")
 // argument is zero.
 var ErrDividedByZero = errors.New("intdec: div: divided by zero")
 
-var ErrRounding = errors.New("intdec: rnd: rounding fractionals " +
-	"must be less than context fractionals")
-
 // A UContext represents an environment to do arithmetic with
 // uint64-based decimals.  A UContext's zero value is NOT ready to use.
 // Create a new context with needed flags by calling [ints.UDec]'s

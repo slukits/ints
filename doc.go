@@ -9,21 +9,22 @@
 // can do with provided Set-type.
 //
 // To use the non-negative integer based decimal arithmetics a
-// [ints.UContext] instance is needed to create [ints.UDecimal] values and
-// to operate on them.  [ints.UDec] provides the ready to use default
-// context.
+// [ints.UContext] instance is needed to create [ints.UDecimal] values
+// and to operate on them.  [ints.UDec] provides the ready to use
+// default context.
 //
-//	d1, err := ints.UDec.From.Str("2.5") // string to UDecimal
+//	d1, err := ints.UDec.From.Str("19.5") // string to UDecimal
 //	if err != nil {
 //	    panic(err)
 //	}
 //
-//	d2, err := ints.UDec.From.Float(2.5) // float to UDecimal
+//	d2, err := ints.UDec.From.Float(22.5) // float to UDecimal
 //	if err != nil {
 //	    panic(err)
 //	}
 //
-//	fmt.Println("result:", ints.UDec.MAdd(d1, d2).Str(ints.UhjDec))
+//	fmt.Println("result:", ints.UDec.MAdd(d1, d2).Str(ints.UDec))
+//	// prints "result: 42,00"
 //
 // Note that [ints.UDecimal] values are not aware of their number of
 // fractionals, i.e. positions after the decimal separator.  This
@@ -40,11 +41,11 @@
 // and the possibility to calculate directly with floats in a decimal
 // manner.
 //
-//	sum := ints.UDec.Float.MSum(2.5, 2.5)
+//	sum := ints.UDec.Float.MAdd(2.5, 2.5)
 //
 // I.e. provided floats are converted to [ints.UDecimal]-values before
-// the operation is performed and the operation returns an
-// [ints.UDecimal].
+// the operation is performed and the operation returns an default
+// context's [ints.UDecimal].
 //
 // A Context has two set of flags the arithmetic flags and format flags.
 // The former control the [ints.UDecimal] conversion and their
@@ -65,12 +66,12 @@
 //
 // NOTE while I try to write idiomatic go code I value a convenient to
 // use (practical) API higher than the "make the zero type usable"
-// idiom.  I couldn't find a way to make the zero [UContext] usable while
-// providing the API it has.  Hence you should never instantiate a
-// [UContext], [UConvert], [UDecimal] or [UFloats] type directly.  It is all
-// done for you by a single ints.UDec.New call.  The mentioned types are
-// defined as public anyway to provide their methods' documentations in
-// the go documentation server.
+// idiom.  I couldn't find a way to make the zero [UContext] usable
+// while providing the API it has.  Hence you should never instantiate a
+// [UContext], [UConvert], [UDecimal] or [UFloats] type directly.  It is
+// all done for you by a single ints.UDec.New call.  The mentioned types
+// are defined as public anyway to provide their methods' documentations
+// in the go documentation server.
 //
 // Format flags may be changed at any time
 //

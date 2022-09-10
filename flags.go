@@ -4,7 +4,7 @@
 package ints
 
 // Flags constants control a decimal contexts Decimal-conversion, its
-// arithmetics and a [UDecimal]-values string formatting.
+// arithmetics and an [UDecimal]-value's string representation.
 type Flags uint64
 
 func (ff *Flags) set(flags Flags) {
