@@ -4,7 +4,7 @@
 package ints
 
 // Flags constants control a decimal contexts Decimal-conversion, its
-// arithmetics and a [Decimal]-values string formatting.
+// arithmetics and a [UDecimal]-values string formatting.
 type Flags uint64
 
 func (ff *Flags) set(flags Flags) {
@@ -85,11 +85,11 @@ var flagsToSeparator = map[Flags]rune{
 }
 
 type flags struct {
-	cntx     *Context
+	cntx     *UContext
 	art, fmt Flags
 }
 
-func newFlags(c *Context) *flags {
+func newFlags(c *UContext) *flags {
 	ff := flags{cntx: c, art: DOT_SEPARATOR | SIX_FRACTIONALS}
 	ff.fmt = COMMA_SEPARATOR | TWO_FRACTIONALS
 	return &ff
@@ -110,7 +110,7 @@ func (ff *flags) copy(ia, fmt Flags) *flags {
 // Decimal-value.  Note SetFmt(Default) is an no-op and if more than one
 // separator constant or more than one fractional positions constant is
 // given only one of them will be chosen and it is undefined which one.
-func (ff *flags) SetFmt(flags Flags) *Context {
+func (ff *flags) SetFmt(flags Flags) *UContext {
 	ff.fmt.set(flags)
 	return ff.cntx
 }

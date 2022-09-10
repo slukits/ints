@@ -13,90 +13,93 @@ import (
 )
 
 // ErrOverflow is returned by any arithmetic operation whose result (or
-// intermediate result) would be bigger than Context.Max or negative.
+// intermediate result) would be bigger than [UContext].Max or negative.
 var ErrOverflow = errors.New("ints: dec: overflow")
 
 // ErrDividedByZero is returned by an Div-operation whose second
 // argument is zero.
 var ErrDividedByZero = errors.New("intdec: div: divided by zero")
 
-// A Context represents an environment to do arithmetic with
-// uint64-based decimals.  A Context's zero value is NOT ready to use.
-// Create a new context with needed flags by calling [ints.Dec]'s
-// [Context.New] method.  A context's arithmetic flags may not be
+var ErrRounding = errors.New("intdec: rnd: rounding fractionals " +
+	"must be less than context fractionals")
+
+// A UContext represents an environment to do arithmetic with
+// uint64-based decimals.  A UContext's zero value is NOT ready to use.
+// Create a new context with needed flags by calling [ints.UDec]'s
+// [UContext.New] method.  A context's arithmetic flags may not be
 // changed once the context is created.  There is a separate set of
-// format flags which control the string representation of a [Decimal],
+// format flags which control the string representation of an [UDecimal],
 // i.e. its decimal separator and number of fractional positions.
 // Format flags may be changed at any time.
-type Context struct {
+type UContext struct {
 	flags                  *flags
 	separator              rune
 	fmtSeparator           rune
 	integrals, fractionals int8
-	pow                    Decimal
+	pow                    UDecimal
 	maxInts, maxFrcs       uint64
 
 	// From provides conversion methods returning Decimal-values.
-	From *Convert
+	From *UConvert
 
 	// Float provides a ready to use "floats-decimal-calculator".
-	Float *Floats
+	Float *UFloats
 
 	// Max is the maximal representable Decimal value having a context's
 	// set arithmetic fractionals.
-	Max Decimal
+	Max UDecimal
 }
 
-// Dec returns the default context whose arithmetic flags default to
-// [DOT_SEPARATOR] | [SIX_FRACTIONALS], i.e. the string [Decimal]
+// UDec returns the default context whose arithmetic flags default to
+// [DOT_SEPARATOR] | [SIX_FRACTIONALS], i.e. the string [UDecimal]
 // conversion expects a string with a dot decimal separator and the
-// returned [Decimal]'s last six positions are interpreted as its
+// returned [UDecimal]'s last six positions are interpreted as its
 // fractionals.  The format flags default to a [COMMA_SEPARATOR] |
-// [TWO_FRACTIONALS], i.e. a [Decimal.Str] representation's fractionals
+// [TWO_FRACTIONALS], i.e. a [UDecimal.Str] representation's fractionals
 // are truncated at the second position and a comma is used as decimal
-// separator.  Respectively [Decimal.Rnd] "rounds to even" to the second
+// separator.  Respectively [UDecimal.Rnd] "rounds to even" to the second
 // position.  In the unlikely case that there are more format
 // fractionals as arithmetic fractionals the string representation is
 // accordingly padded with zeros.
 //
 // Note you cannot change a contexts arithmetics flags.  Create a new
-// context with different arithmetics flags by using Dec's [Context.New]
+// context with different arithmetics flags by using UDec's [UContext.New]
 // method.
-var Dec = func() *Context {
-	cntx := &Context{}
+var UDec = func() *UContext {
+	cntx := &UContext{}
 	cntx.flags = newFlags(cntx)
 	initialize(cntx)
 	return cntx
 }()
 
 // New creates a new Context-instance with provided arithmetic and
-// format flags.  Using the DEFAULTS flag for arithmetic or format Flags
+// format flags.  Using the [DEFAULTS] flag for arithmetic or format Flags
 // copies the respective flag set of given context.  In general if
 // a fractionals or a separator flag is omitted the respective flag of given
 // context is used.  Is more than one fractional or separator flag given
 // only one of them is used and it is undefined which one.
-func (c *Context) New(art, fmt Flags) *Context {
+func (c *UContext) New(art, fmt Flags) *UContext {
 	if c == nil || c.flags == nil {
-		return Dec.New(art, fmt)
+		return UDec.New(art, fmt)
 	}
-	cntx := &Context{flags: c.flags.copy(art, fmt)}
+	cntx := &UContext{flags: c.flags.copy(art, fmt)}
 	initialize(cntx)
 	return cntx
 }
 
-func initialize(c *Context) {
+func initialize(c *UContext) {
 	c.separator = flagsToSeparator[c.flags.art&ffSeparators]
 	c.fmtSeparator = flagsToSeparator[c.flags.fmt&ffSeparators]
 	c.integrals, c.fractionals, c.Max, c.maxInts, c.maxFrcs =
 		c.fractionalProperties(flagsToFractionals[c.flags.art&ffFractionals])
-	c.pow = Decimal(math.Pow10(int(c.fractionals)))
+	c.pow = UDecimal(math.Pow10(int(c.fractionals)))
 	c.flags.cntx = c
-	c.From = &Convert{cntx: c}
-	c.Float = &Floats{cntx: c}
+	c.From = &UConvert{cntx: c}
+	c.Float = &UFloats{cntx: c}
 }
 
-func (c *Context) fractionalProperties(n int) (
-	ii, ff int8, max Decimal, imx, fmx uint64,
+func (c *UContext) fractionalProperties(n int) (
+	ii, ff int8, max UDecimal, imx, fmx uint64,
 ) {
 	if ii, ok := initsFor(n); ok {
 		return ii.ii, ii.ff, ii.max, ii.imx, ii.fmx
@@ -107,7 +110,7 @@ func (c *Context) fractionalProperties(n int) (
 	if maxDifFrc%(expFrc*10) == 0 {
 		panic("intdec: context: properties: unexpected zero-position")
 	}
-	vv.max = Decimal(maxDifFrc - 1)
+	vv.max = UDecimal(maxDifFrc - 1)
 	vv.imx = (maxDifFrc / expFrc) - 1
 	vv.fmx = uint64(vv.max) % expFrc
 	vv.ii = int8(len(strconv.Itoa(int(vv.imx))))
@@ -120,7 +123,7 @@ func (c *Context) fractionalProperties(n int) (
 // uint64.
 type nInit struct {
 	ii, ff   int8
-	max      Decimal
+	max      UDecimal
 	imx, fmx uint64
 }
 
@@ -147,23 +150,23 @@ var mutex = sync.Mutex{}
 // SetFmt sets given context's format flags.  Is more than one fractional
 // or separator flag given only one of them is used and it is undefined
 // which one.
-func (c *Context) SetFmt(ff Flags) {
+func (c *UContext) SetFmt(ff Flags) {
 	c.flags.fmt.set(ff)
 	c.fmtSeparator = flagsToSeparator[c.flags.fmt&ffSeparators]
 }
 
 // Add adds given decimals and returns their sum.  Add fails if the
-// result overflows given context's *Max* property.
-func (c *Context) Add(a, b Decimal) (Decimal, error) {
+// result overflows given context's Max property.
+func (c *UContext) Add(a, b UDecimal) (UDecimal, error) {
 	if a > c.Max-b {
 		return 0, ErrOverflow
 	}
 	return a + b, nil
 }
 
-// MAdd is the 'Must'-version of [Context.Add] which panics if
+// MAdd is the 'Must'-version of [UContext.Add] which panics if
 // corresponding Add-call fails.
-func (c *Context) MAdd(a, b Decimal) Decimal {
+func (c *UContext) MAdd(a, b UDecimal) UDecimal {
 	sum, err := c.Add(a, b)
 	if err != nil {
 		panic(err)
@@ -173,16 +176,16 @@ func (c *Context) MAdd(a, b Decimal) Decimal {
 
 // Sub subtracts given decimal b from a and returns their difference.
 // Sub fails with an overflow error if b is  greater than a.
-func (c *Context) Sub(a, b Decimal) (Decimal, error) {
+func (c *UContext) Sub(a, b UDecimal) (UDecimal, error) {
 	if b > a {
 		return 0, ErrOverflow
 	}
 	return a - b, nil
 }
 
-// MSub is the 'must'-version of [Context.Sub] which panics if
+// MSub is the 'must'-version of [UContext.Sub] which panics if
 // corresponding Sub-call fails.
-func (c *Context) MSub(a, b Decimal) Decimal {
+func (c *UContext) MSub(a, b UDecimal) UDecimal {
 	diff, err := c.Sub(a, b)
 	if err != nil {
 		panic(err)
@@ -192,7 +195,7 @@ func (c *Context) MSub(a, b Decimal) Decimal {
 
 // Mult multiplies given decimals and returns their product.  Mult fails
 // if the product is greater than Max of given Context.
-func (c *Context) Mult(a, b Decimal) (Decimal, error) {
+func (c *UContext) Mult(a, b UDecimal) (UDecimal, error) {
 	if a == 0 || b == 0 {
 		return 0, nil
 	}
@@ -217,9 +220,9 @@ func (c *Context) Mult(a, b Decimal) (Decimal, error) {
 	return prodABWithoutProdFractionals + prodAFrcBFrc, nil
 }
 
-// MMult is the 'Must'-variant of [Context.Mult] which panics if
+// MMult is the 'Must'-variant of [UContext.Mult] which panics if
 // corresponding Mult-call fails.
-func (c *Context) MMult(a, b Decimal) Decimal {
+func (c *UContext) MMult(a, b UDecimal) UDecimal {
 	prd, err := c.Mult(a, b)
 	if err != nil {
 		panic(err)
@@ -229,7 +232,7 @@ func (c *Context) MMult(a, b Decimal) Decimal {
 
 // Div divides a by b and returns resulting quotient.  Div fails if it
 // overflows (i.e. a is "big" and 0 < b < 1) or if b is zero.
-func (c *Context) Div(a, b Decimal) (Decimal, error) {
+func (c *UContext) Div(a, b UDecimal) (UDecimal, error) {
 	if b == 0 {
 		return 0, ErrDividedByZero
 	}
@@ -250,9 +253,9 @@ func (c *Context) Div(a, b Decimal) (Decimal, error) {
 	return num / b, nil
 }
 
-// MDiv is the 'Must'-variant of [Context.Div] which panics if
+// MDiv is the 'Must'-variant of [UContext.Div] which panics if
 // corresponding Div-call fails.
-func (c *Context) MDiv(a, b Decimal) Decimal {
+func (c *UContext) MDiv(a, b UDecimal) UDecimal {
 	qut, err := c.Div(a, b)
 	if err != nil {
 		panic(err)
@@ -260,14 +263,14 @@ func (c *Context) MDiv(a, b Decimal) Decimal {
 	return qut
 }
 
-const maxInt64 = Decimal(math.MaxInt64)
+const maxInt64 = UDecimal(math.MaxInt64)
 
-func (c *Context) bigIntDiv(a, b Decimal) (Decimal, error) {
+func (c *UContext) bigIntDiv(a, b UDecimal) (UDecimal, error) {
 	bigA := (&big.Int{}).SetUint64(uint64(a))
 	bigA.Mul(bigA, big.NewInt(int64(c.pow)))
 	bigA.Div(bigA, (&big.Int{}).SetUint64(uint64(b)))
 	if !bigA.IsUint64() {
 		return 0, ErrOverflow
 	}
-	return Decimal(bigA.Uint64()), nil
+	return UDecimal(bigA.Uint64()), nil
 }

@@ -4,14 +4,14 @@
 
 package ints
 
-// Floats provides a shortcut for decimal operations on floats by
+// UFloats provides a shortcut for decimal operations on floats by
 // automatically converting provided floats to decimal values.  This
 // type's intent was to free the tests of unnecessary clutter.
-type Floats struct {
-	cntx *Context
+type UFloats struct {
+	cntx *UContext
 }
 
-func (flt *Floats) convert(a, b float64) (Decimal, Decimal, error) {
+func (flt *UFloats) convert(a, b float64) (UDecimal, UDecimal, error) {
 	aDec, err := flt.cntx.From.Float(a)
 	if err != nil {
 		return 0, 0, err
@@ -23,9 +23,9 @@ func (flt *Floats) convert(a, b float64) (Decimal, Decimal, error) {
 	return aDec, bDec, nil
 }
 
-// Add converts a and b to [Decimal]-values and returns their sum.  It fails
+// Add converts a and b to [UDecimal]-values and returns their sum.  It fails
 // if the conversion of a or b fails, or if their addition fails.
-func (flt *Floats) Add(a, b float64) (Decimal, error) {
+func (flt *UFloats) Add(a, b float64) (UDecimal, error) {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		return 0, err
@@ -33,9 +33,9 @@ func (flt *Floats) Add(a, b float64) (Decimal, error) {
 	return flt.cntx.Add(aDec, bDec)
 }
 
-// MAdd is the 'Must'-variant of [Float.Add] which panics if
+// MAdd is the 'Must'-variant of [UFloat.Add] which panics if
 // corresponding Add-call fails.
-func (flt *Floats) MAdd(a, b float64) Decimal {
+func (flt *UFloats) MAdd(a, b float64) UDecimal {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		panic(err)
@@ -43,10 +43,10 @@ func (flt *Floats) MAdd(a, b float64) Decimal {
 	return flt.cntx.MAdd(aDec, bDec)
 }
 
-// Sub converts a and b to [Decimal]-values and returns their
+// Sub converts a and b to [UDecimal]-values and returns their
 // difference.  It fails if the conversion of a or b fails, or if their
 // subtraction fails.
-func (flt *Floats) Sub(a, b float64) (Decimal, error) {
+func (flt *UFloats) Sub(a, b float64) (UDecimal, error) {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		return 0, err
@@ -54,9 +54,9 @@ func (flt *Floats) Sub(a, b float64) (Decimal, error) {
 	return flt.cntx.Sub(aDec, bDec)
 }
 
-// MSub is the 'Must'-variant of [Floats.Sub] which panics if
+// MSub is the 'Must'-variant of [UFloats.Sub] which panics if
 // corresponding Sub-call fails.
-func (flt *Floats) MSub(a, b float64) Decimal {
+func (flt *UFloats) MSub(a, b float64) UDecimal {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		panic(err)
@@ -64,10 +64,10 @@ func (flt *Floats) MSub(a, b float64) Decimal {
 	return flt.cntx.MSub(aDec, bDec)
 }
 
-// Mult converts a and b to [Decimal]-values and returns their product.
+// Mult converts a and b to [UDecimal]-values and returns their product.
 // It fails if the conversion of a or b fails, or if their
 // multiplication fails.
-func (flt *Floats) Mult(a, b float64) (Decimal, error) {
+func (flt *UFloats) Mult(a, b float64) (UDecimal, error) {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		return 0, err
@@ -75,9 +75,9 @@ func (flt *Floats) Mult(a, b float64) (Decimal, error) {
 	return flt.cntx.Mult(aDec, bDec)
 }
 
-// MMult is the 'Must'-variant of [Floats.Mult] which panics if
+// MMult is the 'Must'-variant of [UFloats.Mult] which panics if
 // corresponding Mult-call fails.
-func (flt *Floats) MMult(a, b float64) Decimal {
+func (flt *UFloats) MMult(a, b float64) UDecimal {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		panic(err)
@@ -85,9 +85,9 @@ func (flt *Floats) MMult(a, b float64) Decimal {
 	return flt.cntx.MMult(aDec, bDec)
 }
 
-// Div converts a and b to [Decimal]-values and returns their quotient.  It
+// Div converts a and b to [UDecimal]-values and returns their quotient.  It
 // fails if the conversion of a or b fails, or if their division fails.
-func (flt *Floats) Div(a, b float64) (Decimal, error) {
+func (flt *UFloats) Div(a, b float64) (UDecimal, error) {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		return 0, err
@@ -95,9 +95,9 @@ func (flt *Floats) Div(a, b float64) (Decimal, error) {
 	return flt.cntx.Div(aDec, bDec)
 }
 
-// MDiv is the 'Must'-variant of [Floats.Div] which panics if
+// MDiv is the 'Must'-variant of [UFloats.Div] which panics if
 // corresponding Div-call fails.
-func (flt *Floats) MDiv(a, b float64) Decimal {
+func (flt *UFloats) MDiv(a, b float64) UDecimal {
 	aDec, bDec, err := flt.convert(a, b)
 	if err != nil {
 		panic(err)
