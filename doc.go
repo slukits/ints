@@ -47,7 +47,7 @@
 // the operation is performed and the operation returns an default
 // context's [ints.UDecimal].
 //
-// A Context has two set of flags the arithmetic flags and format flags.
+// A Context has two sets of flags the arithmetic flags and format flags.
 // The former control the [ints.UDecimal] conversion and their
 // arithmetics.  The later control the string representation of a
 // [ints.UDecimal] value.  Once a Context instance is created its
