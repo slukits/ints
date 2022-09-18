@@ -52,9 +52,9 @@ func (s *set) Has_added_elements(t *T) {
 }
 
 func (s *set) Has_not_element_not_in_set(t *T) {
-	t.False((&Set{}).Has(1))
-	t.False((&Set{}).Has(1, 2))
-	t.False((&Set{}).Add(1).Has(1, 2))
+	t.Not.True((&Set{}).Has(1))
+	t.Not.True((&Set{}).Has(1, 2))
+	t.Not.True((&Set{}).Add(1).Has(1, 2))
 }
 
 func (s *set) Provides_all_its_elements(t *T) {
@@ -70,7 +70,7 @@ func (s *set) Provides_all_its_elements(t *T) {
 	}
 	ii.For(func(e int) {
 		t.True(in(e))
-		t.False(visited[e])
+		t.Not.True(visited[e])
 		visited[e] = true
 	})
 	t.Eq(3, len(visited))
@@ -81,7 +81,7 @@ func (s *set) Empty_set_is_subset_of_empty_set(t *T) {
 }
 
 func (s *set) Is_no_subset_of_smaller_set(t *T) {
-	t.False((&Set{}).HasSub((&Set{}).Add(1)))
+	t.Not.True((&Set{}).HasSub((&Set{}).Add(1)))
 }
 
 func (s *set) Is_subset_of_set_having_all_its_elements(t *T) {
@@ -89,15 +89,15 @@ func (s *set) Is_subset_of_set_having_all_its_elements(t *T) {
 }
 
 func (s *set) Is_no_subset_of_set_having_not_all_its_elements(t *T) {
-	t.False((&Set{}).Add(1, 2).HasSub((&Set{}).Add(5)))
+	t.Not.True((&Set{}).Add(1, 2).HasSub((&Set{}).Add(5)))
 }
 
 func (s *set) Is_not_equal_to_other_set_with_different_len(t *T) {
-	t.False((&Set{}).Add(1, 2).Eq((&Set{}).Add(1)))
+	t.Not.True((&Set{}).Add(1, 2).Eq((&Set{}).Add(1)))
 }
 
 func (s *set) Is_not_equal_to_other_set_which_is_no_subset(t *T) {
-	t.False((&Set{}).Add(1, 2).Eq((&Set{}).Add(1, 3)))
+	t.Not.True((&Set{}).Add(1, 2).Eq((&Set{}).Add(1, 3)))
 }
 
 func (s *set) Is_equal_to_other_set_if_subset_and_lens_equal(t *T) {
@@ -111,8 +111,8 @@ func (s *set) Noops_if_it_doesnt_has_deleted_element(t *T) {
 
 func (s *set) Doesnt_have_deleted_elements(t *T) {
 	st := (&Set{}).Add(3, 3403, 455505, 22, 42)
-	t.False(st.Del(22).Has(22))
-	t.False(st.Del(3403, 455505).Has(3403, 455505))
+	t.Not.True(st.Del(22).Has(22))
+	t.Not.True(st.Del(3403, 455505).Has(3403, 455505))
 }
 
 func (s *set) Provides_its_elements_as_slice(t *T) {
